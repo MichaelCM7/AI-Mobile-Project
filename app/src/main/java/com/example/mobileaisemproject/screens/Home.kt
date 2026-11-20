@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -147,7 +148,16 @@ fun DiseaseRecordCard(
                     .size(72.dp)
                     .clip(RoundedCornerShape(12.dp))
                     .background(Color(0xFFD6D6D6))
-            )
+            ) {
+                if (record.image != null) {
+                    androidx.compose.foundation.Image(
+                        bitmap = record.image.asImageBitmap(),
+                        contentDescription = record.name,
+                        contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.width(16.dp))
 
