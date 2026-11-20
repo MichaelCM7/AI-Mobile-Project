@@ -14,15 +14,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsTopHeight
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import com.example.mobileaisemproject.ml.DiseaseRecord
-import com.example.mobileaisemproject.screens.HomeScreen
+import com.example.mobileaisemproject.screens.DiseaseIDScreen
 import com.example.mobileaisemproject.ui.theme.MobileAISemProjectTheme
 
 class MainActivity : ComponentActivity() {
@@ -36,8 +34,6 @@ class MainActivity : ComponentActivity() {
         )
         setContent {
             MobileAISemProjectTheme {
-                val records = remember { mutableStateListOf<DiseaseRecord>() }
-
                 Box(modifier = Modifier.fillMaxSize()) {
                     // Master Backdrop
                     Image(
@@ -48,10 +44,16 @@ class MainActivity : ComponentActivity() {
                     )
 
                     // App Screens
-                    HomeScreen(
-                        records = records,
-                        onCameraClick = { /* TODO: Navigate to CameraScreen */ },
-                        onTabSelected = { /* TODO: Navigate to Profile */ }
+                    DiseaseIDScreen(
+                        record = DiseaseRecord(
+                            id = "1",
+                            name = "Disease Name",
+                            confidence = "Confidence",
+                            date = "Date"
+                        ),
+                        remedyText = "Remedy to the disease description",
+                        onDeleteClick = { /* TODO: Delete record */ },
+                        onTabSelected = { /* TODO: Navigate by tab */ }
                     )
 
                     // Solid white strip behind the status bar (battery, clock, notifications)
