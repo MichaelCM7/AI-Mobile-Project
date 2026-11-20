@@ -1,0 +1,80 @@
+American Bollworm On Cotton
+Anthracnose On Cotton
+Apple Scab
+Army Worm
+Bacterial Blight In Cotton
+Bacterial Blight In Rice
+Bacterial Spot Peach
+Bacterial Spot Pepper
+Bacterial Spot Tomato
+Black Measles Grape
+Black Rot Apple
+Black Rot Grape
+Blueberry healthy
+Brown Spot
+Cassava Bacterial Blight
+Cassava Brown Streak Disease
+Cassava Green Mottle
+Cassava Mosaic Disease
+Cedar Apple Rust
+Common Rust Maize
+Cotton Aphid
+Cotton Mealy Bug
+Cotton Whitefly
+Early Blight Potato
+Early Blight Tomato
+Flag Smut
+Gray Leaf Spot Maize
+Healthy Apple
+Healthy Cassava
+Healthy Cherry
+Healthy Cotton
+Healthy Grape
+Healthy Maize
+Healthy Peach
+Healthy Pepper
+Healthy Potato
+Healthy Strawberry
+Healthy Sugarcane
+Healthy Tomato
+Healthy Wheat
+Late Blight Potato
+Late Blight Tomato
+Leaf Blight Grape
+Leaf Curl
+Leaf Mold Tomato
+Leaf Scorch Strawberry
+Leaf Smut
+Maize Ear Rot
+Maize Fall Armyworm
+Maize Stem Borer
+Mosaic Sugarcane
+Mosaic Virus Tomato
+Northern Leaf Blight Maize
+Orange Haunglongbing (Citrus greening)
+Pink Bollworm In Cotton
+Powdery Mildew Cherry
+Raspberry healthy
+Red Cotton Bug
+Red Rot Sugarcane
+Red Rust Sugarcane
+Rice Blast
+Septoria Leaf Spot Tomato
+Soybean healthy
+Spider Mites Tomato
+Squash Powdery mildew
+Target Spot Tomato
+Thrips On Cotton
+Tungro
+Wheat Aphid
+Wheat Black Rust
+Wheat Brown Leaf Rust
+Wheat Leaf Blight
+Wheat Mite
+Wheat Powdery Mildew
+Wheat Scab
+Wheat Stem Fly
+Wheat Yellow Rust
+Wilt
+Yellow Leaf Curl Virus Tomato
+Yellow Rust Sugarcane
