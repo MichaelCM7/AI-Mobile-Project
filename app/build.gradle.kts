@@ -39,6 +39,17 @@ dependencies {
     // Icon Package
     implementation("androidx.compose.material:material-icons-extended")
 
+    // CameraX Dependencies
+    val cameraxVersion = "1.4.0"
+    implementation("androidx.camera:camera-core:${cameraxVersion}")
+    implementation("androidx.camera:camera-camera2:${cameraxVersion}")
+    implementation("androidx.camera:camera-lifecycle:${cameraxVersion}")
+    implementation("androidx.camera:camera-view:${cameraxVersion}")
+
+    // ONNX Runtime Android SDK
+    implementation("com.microsoft.onnxruntime:onnxruntime-android:1.22.0")
+
+    // Default Dependencies
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
