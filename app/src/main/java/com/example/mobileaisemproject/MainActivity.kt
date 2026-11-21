@@ -26,6 +26,8 @@ import com.example.mobileaisemproject.screens.HomeScreen
 import com.example.mobileaisemproject.screens.Profile
 import com.example.mobileaisemproject.screens.ProfileScreen
 import com.example.mobileaisemproject.screens.ResultsScreen
+import com.example.mobileaisemproject.screens.SignInScreen
+import com.example.mobileaisemproject.screens.SignUpScreen
 import com.example.mobileaisemproject.ui.theme.MobileAISemProjectTheme
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -33,7 +35,7 @@ import java.util.Locale
 import java.util.UUID
 
 private enum class AppScreen {
-    HOME, CAMERA, RESULTS, PROFILE, DISEASE_ID
+    SIGN_IN, SIGN_UP, HOME, CAMERA, RESULTS, PROFILE, DISEASE_ID
 }
 
 class MainActivity : ComponentActivity() {
@@ -47,18 +49,44 @@ class MainActivity : ComponentActivity() {
         )
         setContent {
             MobileAISemProjectTheme {
-                var currentScreen by remember { mutableStateOf(AppScreen.HOME) }
+                var currentScreen by remember { mutableStateOf(AppScreen.SIGN_IN) }
                 val records = remember { mutableStateListOf<DiseaseRecord>() }
                 var latestScanResult by remember { mutableStateOf<ScanResult?>(null) }
                 var selectedRecord by remember { mutableStateOf<DiseaseRecord?>(null) }
 
-                BackHandler(enabled = currentScreen != AppScreen.HOME) {
-                    currentScreen = AppScreen.HOME
+                BackHandler(enabled = currentScreen != AppScreen.HOME && currentScreen != AppScreen.SIGN_IN) {
+                    when (currentScreen) {
+                        AppScreen.SIGN_UP -> currentScreen = AppScreen.SIGN_IN
+                        else -> currentScreen = AppScreen.HOME
+                    }
                 }
 
                 // Transparent Box lets your green leafy background show through
                 Box(modifier = Modifier.fillMaxSize()) {
                     when (currentScreen) {
+                        AppScreen.SIGN_IN -> {
+                            SignInScreen(
+                                onSignInClick = { _, _ ->
+                                    currentScreen = AppScreen.HOME
+                                },
+                                onSignUpClick = {
+                                    currentScreen = AppScreen.SIGN_UP
+                                }
+                            )
+                        }
+
+                        AppScreen.SIGN_UP -> {
+                            SignUpScreen(
+                                onSignUp = { _, _, onResult ->
+                                    onResult(com.example.mobileaisemproject.screens.AuthResult.Success)
+                                    currentScreen = AppScreen.SIGN_IN
+                                },
+                                onGoToSignIn = {
+                                    currentScreen = AppScreen.SIGN_IN
+                                }
+                            )
+                        }
+
                         AppScreen.HOME -> {
                             HomeScreen(
                                 records = records,
@@ -114,6 +142,13 @@ class MainActivity : ComponentActivity() {
                                 ),
                                 onTabSelected = { index ->
                                     if (index == 0) currentScreen = AppScreen.HOME
+                                },
+                                onLogoutClick = {
+                                    // Clear session data
+                                    records.clear()
+                                    latestScanResult = null
+                                    selectedRecord = null
+                                    currentScreen = AppScreen.SIGN_IN
                                 }
                             )
                         }
