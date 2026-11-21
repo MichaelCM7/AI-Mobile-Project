@@ -236,7 +236,6 @@ fun SwitchAuthRow(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 12.dp),
-        horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -359,7 +358,7 @@ fun SignUpScreen(
             Text(
                 text = it,
                 color = AppColors.Error,
-                fontSize = 13.sp,
+                fontSize = 14.sp,
                 modifier = Modifier.padding(top = 8.dp)
             )
         }

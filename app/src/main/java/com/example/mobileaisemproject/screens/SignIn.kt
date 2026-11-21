@@ -181,6 +181,7 @@ fun SignInScreen(
                         withStyle(
                             style = SpanStyle(
                                 textDecoration = TextDecoration.Underline,
+                                fontWeight = FontWeight.Bold,
                                 color = AppColors.Green
                             )
                         ) {
@@ -190,7 +191,7 @@ fun SignInScreen(
 
                     Text(
                         text = signUpText,
-                        fontSize = 13.sp,
+                        fontSize = 14.sp,
                         color = Color(0xFF222222),
                         modifier = Modifier.clickable(onClick = onSignUpClick)
                     )
