@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.androidx.room)
 }
 
 android {
@@ -35,7 +37,17 @@ android {
     }
 }
 
+// Auto migrations
+room {
+    schemaDirectory("$projectDir/schemas")
+}
+
 dependencies {
+    // Room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+
     // Icon Package
     implementation("androidx.compose.material:material-icons-extended")
 

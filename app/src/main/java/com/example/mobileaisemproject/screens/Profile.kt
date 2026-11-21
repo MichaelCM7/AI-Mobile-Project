@@ -7,6 +7,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,14 +24,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -48,12 +51,13 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.mobileaisemproject.R
 import com.example.mobileaisemproject.components.CustomFloatingNavBar
 import com.example.mobileaisemproject.ui.theme.MobileAISemProjectTheme
-import com.example.mobileaisemproject.R
 
 data class Profile(
     val phone: String = "",
@@ -65,6 +69,7 @@ fun ProfileScreen(
     profile: Profile,
     modifier: Modifier = Modifier,
     onTabSelected: (Int) -> Unit = {},
+    onLogoutClick: () -> Unit = {},
     onSave: (phone: String, newPassword: String?, onDone: () -> Unit) -> Unit = { _, _, onDone -> onDone() },
 ) {
     var selectedTab by remember { mutableIntStateOf(1) }
@@ -76,6 +81,9 @@ fun ProfileScreen(
     val phoneError = if (editing && submitted) Validate.phone(phoneDraft) else null
     val passwordError =
         if (editing && submitted && passwordDraft.isNotEmpty()) Validate.password(passwordDraft) else null
+
+    // Shared pill shape & height matching PrimaryButton
+    val actionButtonShape = RoundedCornerShape(20.dp)
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -128,9 +136,9 @@ fun ProfileScreen(
                         )
                         Spacer(Modifier.height(16.dp))
 
-                        // Avatar placeholder
+                        // Avatar
                         Image(
-                            painter = painterResource(id = R.drawable.user_img), // Replace with your exact drawable filename
+                            painter = painterResource(id = R.drawable.user_img),
                             contentDescription = "Profile picture",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
@@ -168,46 +176,97 @@ fun ProfileScreen(
                         )
                         Spacer(Modifier.height(28.dp))
 
-                        if (editing) {
-                            PrimaryButton(
-                                text = "Save",
-                                icon = Icons.Filled.Check,
+                        // Side-by-side action buttons:
+                        // Default mode: [ Edit ]  [ Log Out ]
+                        // Edit mode:    [ Save ]  [ Cancel ]
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            // Left Button: Edit / Save
+                            Button(
                                 onClick = {
-                                    submitted = true
-                                    val valid = (Validate.phone(phoneDraft) == null) &&
-                                            (passwordDraft.isEmpty() || Validate.password(passwordDraft) == null)
-                                    if (valid) {
-                                        onSave(Validate.cleanPhone(phoneDraft), passwordDraft.ifEmpty { null }) {
-                                            editing = false
-                                            passwordDraft = ""
-                                            submitted = false
+                                    if (editing) {
+                                        submitted = true
+                                        val valid = (Validate.phone(phoneDraft) == null) &&
+                                                (passwordDraft.isEmpty() || Validate.password(passwordDraft) == null)
+                                        if (valid) {
+                                            onSave(Validate.cleanPhone(phoneDraft), passwordDraft.ifEmpty { null }) {
+                                                editing = false
+                                                passwordDraft = ""
+                                                submitted = false
+                                            }
                                         }
+                                    } else {
+                                        phoneDraft = profile.phone
+                                        passwordDraft = ""
+                                        submitted = false
+                                        editing = true
                                     }
                                 },
-                            )
-                            Spacer(Modifier.height(8.dp))
-                            TextButton(
-                                onClick = {
-                                    editing = false
-                                    submitted = false
-                                    passwordDraft = ""
-                                    phoneDraft = profile.phone
-                                },
-                                modifier = Modifier.align(Alignment.CenterHorizontally),
+                                shape = actionButtonShape,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = AppColors.Green,
+                                    contentColor = Color.White,
+                                ),
+                                contentPadding = PaddingValues(horizontal = 14.dp, vertical = 12.dp),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(48.dp),
                             ) {
-                                Text("Cancel", color = AppColors.Ink)
+                                Icon(
+                                    imageVector = if (editing) Icons.Filled.Check else Icons.Outlined.Edit,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp),
+                                )
+                                Spacer(Modifier.width(6.dp))
+                                Text(
+                                    text = if (editing) "Save" else "Edit",
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
                             }
-                        } else {
-                            PrimaryButton(
-                                text = "Edit",
-                                icon = Icons.Outlined.Edit,
+
+                            // Right Button: Log Out (Black & White) / Cancel (Red & White)
+                            Button(
                                 onClick = {
-                                    phoneDraft = profile.phone
-                                    passwordDraft = ""
-                                    submitted = false
-                                    editing = true
+                                    if (editing) {
+                                        editing = false
+                                        submitted = false
+                                        passwordDraft = ""
+                                        phoneDraft = profile.phone
+                                    } else {
+                                        onLogoutClick()
+                                    }
                                 },
-                            )
+                                shape = actionButtonShape,
+                                border = if (editing) BorderStroke(1.dp, Color(0xFF8A0000)) else null,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (editing) Color(0xFFFF1E1E) else Color.Black,
+                                    contentColor = Color.White,
+                                ),
+                                contentPadding = PaddingValues(horizontal = 14.dp, vertical = 12.dp),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(48.dp),
+                            ) {
+                                Icon(
+                                    imageVector = if (editing) Icons.Outlined.Close else Icons.AutoMirrored.Outlined.Logout,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp),
+                                )
+                                Spacer(Modifier.width(6.dp))
+                                Text(
+                                    text = if (editing) "Cancel" else "Log Out",
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            }
                         }
                     }
                 }
@@ -260,7 +319,7 @@ fun ProfileScreenPreview() {
     MobileAISemProjectTheme {
         ProfileScreen(
             profile = Profile(
-                phone = "+1 234 567 8900",
+                phone = "0700 xxx xxx",
                 identifiedCount = 5,
             ),
         )
