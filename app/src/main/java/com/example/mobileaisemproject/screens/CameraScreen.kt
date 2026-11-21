@@ -41,8 +41,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -52,6 +54,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.mobileaisemproject.ml.PlantDiseaseClassifier
 import com.example.mobileaisemproject.ml.ScanResult
 import com.example.mobileaisemproject.ml.loadAndCropSquareBitmap
+import com.example.mobileaisemproject.ui.theme.MobileAISemProjectTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -144,10 +147,14 @@ fun CameraScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 12.dp, vertical = 8.dp)
                 ) {
-                    IconButton(onClick = {
-                        isFlashOn = false
-                        onCloseClick()
-                    }) {
+                    IconButton(
+                        modifier = Modifier
+                            .background(Color.White, shape = CircleShape),
+                        onClick = {
+                            isFlashOn = false
+                            onCloseClick()
+                        }
+                    ) {
                         Icon(
                             imageVector = Icons.Outlined.Close,
                             contentDescription = "Return to Home",
@@ -163,7 +170,7 @@ fun CameraScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .navigationBarsPadding()
-                    .background(Color.White)
+                    .background(Color(0xFF77A162))
             ) {
                 HorizontalDivider(thickness = 1.dp, color = Color.DarkGray)
                 Row(
@@ -188,7 +195,7 @@ fun CameraScreen(
                             modifier = Modifier.size(52.dp),
                             shape = RoundedCornerShape(12.dp),
                             color = Color.White,
-                            border = BorderStroke(1.dp, Color.DarkGray)
+                            border = BorderStroke(1.dp, Color.Black)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
@@ -202,8 +209,8 @@ fun CameraScreen(
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             text = "Upload",
-                            fontSize = 12.sp,
-                            color = Color.Gray
+                            fontSize = 14.sp,
+                            color = Color.White
                         )
                     }
 
@@ -232,14 +239,14 @@ fun CameraScreen(
                             modifier = Modifier
                                 .size(68.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFFD6D6D6))
-                                .border(1.dp, Color.DarkGray, CircleShape)
+                                .background(Color.White)
+                                .border(3.dp, Color.Black, CircleShape)
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             text = "Take Photo",
-                            fontSize = 12.sp,
-                            color = Color.Gray
+                            fontSize = 14.sp,
+                            color = Color.White
                         )
                     }
 
@@ -254,7 +261,7 @@ fun CameraScreen(
                             modifier = Modifier.size(52.dp),
                             shape = RoundedCornerShape(12.dp),
                             color = if (isFlashOn) Color(0xFFFFF59D) else Color.White,
-                            border = BorderStroke(1.dp, Color.DarkGray)
+                            border = BorderStroke(1.dp, Color.Black)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
@@ -268,8 +275,8 @@ fun CameraScreen(
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             text = "Flash",
-                            fontSize = 12.sp,
-                            color = Color.Gray
+                            fontSize = 14.sp,
+                            color = Color.White
                         )
                     }
                 }
@@ -293,7 +300,7 @@ fun CameraScreen(
             ) {
                 Text(
                     text = "Point Towards The Infected Part or\nPest to Identify Issue",
-                    fontSize = 14.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color.Black,
                     textAlign = TextAlign.Center,

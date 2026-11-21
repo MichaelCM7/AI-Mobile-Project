@@ -1,8 +1,10 @@
 package com.example.mobileaisemproject.screens
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -40,6 +42,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -49,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mobileaisemproject.components.CustomFloatingNavBar
 import com.example.mobileaisemproject.ui.theme.MobileAISemProjectTheme
+import com.example.mobileaisemproject.R
 
 data class Profile(
     val phone: String = "",
@@ -97,6 +102,7 @@ fun ProfileScreen(
                 .padding(bottom = innerPadding.calculateBottomPadding()),
         ) {
             Column(
+                verticalArrangement = Arrangement.Center,
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
@@ -123,22 +129,17 @@ fun ProfileScreen(
                         Spacer(Modifier.height(16.dp))
 
                         // Avatar placeholder
-                        Box(
-                            Modifier
+                        Image(
+                            painter = painterResource(id = R.drawable.user_img), // Replace with your exact drawable filename
+                            contentDescription = "Profile picture",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
                                 .size(120.dp)
                                 .align(Alignment.CenterHorizontally)
                                 .clip(CircleShape)
-                                .background(AppColors.Gray)
-                                .border(1.dp, AppColors.Dark, CircleShape),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Icon(
-                                Icons.Outlined.Person,
-                                contentDescription = "Profile picture",
-                                modifier = Modifier.size(68.dp),
-                                tint = AppColors.Ink,
-                            )
-                        }
+                                .border(1.dp, AppColors.Dark, CircleShape)
+                        )
+
                         Spacer(Modifier.height(20.dp))
 
                         IdentifiedCard(count = profile.identifiedCount)
