@@ -102,7 +102,7 @@ fun HomeScreen(
                     .align(Alignment.BottomEnd)
                     .padding(
                         end = 24.dp,
-                        bottom = innerPadding.calculateBottomPadding() + 16.dp
+                        bottom = innerPadding.calculateBottomPadding() + 20.dp
                     )
                     .size(64.dp),
                 shape = RoundedCornerShape(16.dp),

@@ -6,6 +6,7 @@ import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -70,19 +71,54 @@ fun CameraScreen(
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    val isPreview = LocalInspectionMode.current
 
     var hasCameraPermission by remember { mutableStateOf(false) }
     var isFlashOn by remember { mutableStateOf(false) }
     var isAnalyzing by remember { mutableStateOf(false) }
+    var isClosing by remember { mutableStateOf(false) }
     var trackingOffset by remember { mutableStateOf<Offset?>(null) }
     var cameraControl by remember { mutableStateOf<Camera?>(null) }
 
-    val classifier = remember { PlantDiseaseClassifier(context) }
+    val classifier = remember {
+        if (!isPreview) PlantDiseaseClassifier(context) else null
+    }
 
-    DisposableEffect(Unit) {
+    // Ensures hardware LED finishes turning off BEFORE leaving the screen and unbinding CameraX
+    fun closeCameraSafely() {
+        if (isClosing) return
+        isClosing = true
+
+        val cam = cameraControl
+        if (isFlashOn && cam != null) {
+            isFlashOn = false
+            val future = cam.cameraControl.enableTorch(false)
+            future.addListener(
+                { onCloseClick() },
+                ContextCompat.getMainExecutor(context)
+            )
+        } else {
+            isFlashOn = false
+            onCloseClick()
+        }
+    }
+
+    // Intercept Android system back button / swipe-back gesture
+    BackHandler {
+        closeCameraSafely()
+    }
+
+    // Ensure torch turns off on dispose using the latest cameraControl reference
+    DisposableEffect(cameraControl) {
         onDispose {
             cameraControl?.cameraControl?.enableTorch(false)
-            classifier.close()
+        }
+    }
+
+    // Close ONNX classifier only when CameraScreen leaves composition
+    DisposableEffect(Unit) {
+        onDispose {
+            classifier?.close()
         }
     }
 
@@ -98,16 +134,19 @@ fun CameraScreen(
     }
 
     LaunchedEffect(Unit) {
-        permissionLauncher.launch(Manifest.permission.CAMERA)
+        if (!isPreview) {
+            permissionLauncher.launch(Manifest.permission.CAMERA)
+        }
     }
 
     // Helper to crop & run ONNX inference on any Uri (from camera or gallery)
     fun processImageUri(uri: Uri) {
+        val activeClassifier = classifier ?: return
         isAnalyzing = true
         coroutineScope.launch(Dispatchers.IO) {
             val croppedSquare = loadAndCropSquareBitmap(context, uri)
             if (croppedSquare != null) {
-                val result = classifier.classifyAndGetResult(croppedSquare)
+                val result = activeClassifier.classifyAndGetResult(croppedSquare)
                 withContext(Dispatchers.Main) {
                     isAnalyzing = false
                     onResultReady(result)
@@ -149,11 +188,9 @@ fun CameraScreen(
                 ) {
                     IconButton(
                         modifier = Modifier
+                            .clip(CircleShape)
                             .background(Color.White, shape = CircleShape),
-                        onClick = {
-                            isFlashOn = false
-                            onCloseClick()
-                        }
+                        onClick = { closeCameraSafely() }
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Close,
@@ -183,9 +220,12 @@ fun CameraScreen(
                     // 1. Upload Button
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.clickable(enabled = !isAnalyzing) {
+                        modifier = Modifier.clickable(enabled = !isAnalyzing && !isClosing) {
                             // Turn off flash if user chose Upload
-                            if (isFlashOn) isFlashOn = false
+                            if (isFlashOn) {
+                                isFlashOn = false
+                                cameraControl?.cameraControl?.enableTorch(false)
+                            }
                             galleryLauncher.launch(
                                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                             )
@@ -217,7 +257,7 @@ fun CameraScreen(
                     // 2. Take Photo (Shutter) Button
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.clickable(enabled = !isAnalyzing && hasCameraPermission) {
+                        modifier = Modifier.clickable(enabled = !isAnalyzing && !isClosing && hasCameraPermission) {
                             isAnalyzing = true
                             captureSquarePhoto(
                                 context = context,
@@ -225,10 +265,12 @@ fun CameraScreen(
                                 onCaptured = { uri ->
                                     // Turn off flash right after shutter capture completes
                                     isFlashOn = false
+                                    cameraControl?.cameraControl?.enableTorch(false)
                                     processImageUri(uri)
                                 },
                                 onError = { msg ->
                                     isFlashOn = false
+                                    cameraControl?.cameraControl?.enableTorch(false)
                                     isAnalyzing = false
                                     Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
                                 }
@@ -253,7 +295,7 @@ fun CameraScreen(
                     // 3. Flash Toggle Button
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.clickable(enabled = !isAnalyzing) {
+                        modifier = Modifier.clickable(enabled = !isAnalyzing && !isClosing) {
                             isFlashOn = !isFlashOn
                         }
                     ) {
@@ -319,7 +361,13 @@ fun CameraScreen(
                     .border(1.dp, Color.DarkGray, RoundedCornerShape(16.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                if (hasCameraPermission) {
+                if (isPreview) {
+                    Text(
+                        text = "Camera Viewfinder (1:1)",
+                        color = Color.DarkGray,
+                        textAlign = TextAlign.Center
+                    )
+                } else if (hasCameraPermission) {
                     CameraPreview(
                         modifier = Modifier.fillMaxSize(),
                         imageCapture = imageCapture,
@@ -384,6 +432,12 @@ private fun CameraPreview(
     val lifecycleOwner = LocalLifecycleOwner.current
     val previewView = remember { PreviewView(context) }
     var camera by remember { mutableStateOf<Camera?>(null) }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            camera?.cameraControl?.enableTorch(false)
+        }
+    }
 
     LaunchedEffect(Unit) {
         val cameraProvider = context.getCameraProvider()
@@ -471,4 +525,15 @@ private fun captureSquarePhoto(
             }
         }
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CameraScreenPreview() {
+    MobileAISemProjectTheme {
+        CameraScreen(
+            onCloseClick = {},
+            onResultReady = {}
+        )
+    }
 }

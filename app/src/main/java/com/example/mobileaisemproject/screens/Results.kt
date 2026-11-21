@@ -1,29 +1,33 @@
 package com.example.mobileaisemproject.screens
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color as AndroidColor
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mobileaisemproject.ml.ScanResult
+import com.example.mobileaisemproject.ui.theme.MobileAISemProjectTheme
 
 @Composable
 fun ResultsScreen(
@@ -54,16 +58,15 @@ fun ResultsScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             // Disease Name & Confidence
-            Surface (
+            Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-//                    .padding(10.dp, 5.dp)
                     .heightIn(min = 60.dp),
                 shape = RoundedCornerShape(10.dp),
                 color = Color.White,
                 border = BorderStroke(1.dp, Color.DarkGray)
             ) {
-                Column (
+                Column(
                     modifier = Modifier
                         .padding(10.dp, 5.dp)
                 ) {
@@ -135,15 +138,13 @@ fun ResultsScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-//                    .padding(horizontal = 20.dp, vertical = 12.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Button(
                     onClick = onReturnHomeClick,
                     shape = RoundedCornerShape(20.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF222222),
+                        containerColor = AppColors.Green,
                         contentColor = Color.White
                     ),
                     contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp),
@@ -164,6 +165,32 @@ fun ResultsScreen(
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ResultsScreenPreview() {
+    val mockBitmap = remember {
+        Bitmap.createBitmap(224, 224, Bitmap.Config.ARGB_8888).apply {
+            Canvas(this).drawColor(AndroidColor.parseColor("#C0C0C0"))
+        }
+    }
+
+    val sampleResult = ScanResult(
+        diseaseName = "Tomato Early Blight",
+        confidence = 94.6f,
+        remedy = "Remove affected lower leaves immediately to prevent fungal spores from spreading. Improve air circulation around the plant, water at the base rather than overhead, and apply a copper-based fungicide every 7–10 days.",
+        croppedImage = mockBitmap
+    )
+
+    MobileAISemProjectTheme {
+        ResultsScreen(
+            scanResult = sampleResult,
+            onReturnHomeClick = {}
+        )
     }
 }
