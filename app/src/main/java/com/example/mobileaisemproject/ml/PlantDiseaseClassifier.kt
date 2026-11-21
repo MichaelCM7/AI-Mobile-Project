@@ -26,7 +26,8 @@ data class DiseaseRecord(
     val confidence: String,
     val date: String,
     val remedy: String = "",
-    val image: Bitmap? = null
+    val image: Bitmap? = null,
+    val imagePath: String = ""
 )
 
 data class ScanResult(

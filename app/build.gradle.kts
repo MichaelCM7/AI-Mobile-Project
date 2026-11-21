@@ -37,12 +37,15 @@ android {
     }
 }
 
-// Auto migrations
+// Auto migrations schema directory configured via Room Gradle Plugin
 room {
     schemaDirectory("$projectDir/schemas")
 }
 
 dependencies {
+    // Bcyrpt
+    implementation("at.favre.lib:bcrypt:0.10.2")
+
     // Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)

@@ -35,13 +35,16 @@ import com.example.mobileaisemproject.R
 
 @Composable
 fun SignInScreen(
-    onSignInClick: (phone: String, password: String) -> Unit,
+    onSignInClick: (phone: String, password: String, onResult: (AuthResult) -> Unit) -> Unit = { _, _, onResult -> onResult(AuthResult.Success) },
     onSignUpClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var phone by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var submitted by remember { mutableStateOf(false) }
+    var busy by remember { mutableStateOf(false) }
+    var serverError by remember { mutableStateOf<String?>(null) }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -174,6 +177,15 @@ fun SignInScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
+                    serverError?.let {
+                        Text(
+                            text = it,
+                            color = AppColors.Error,
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                    }
+
                     Spacer(modifier = Modifier.height(14.dp))
 
                     val signUpText = buildAnnotatedString {
@@ -199,7 +211,26 @@ fun SignInScreen(
                     Spacer(modifier = Modifier.height(22.dp))
 
                     Button(
-                        onClick = { onSignInClick(phone.trim(), password) },
+                        onClick = {
+                            submitted = true
+                            val phoneErr = Validate.phone(phone)
+                            val passErr = Validate.password(password)
+                            if (phoneErr != null) {
+                                serverError = phoneErr
+                            } else if (passErr != null) {
+                                serverError = passErr
+                            } else {
+                                busy = true
+                                serverError = null
+                                onSignInClick(Validate.cleanPhone(phone), password) { result ->
+                                    busy = false
+                                    if (result is AuthResult.Error) {
+                                        serverError = result.message
+                                    }
+                                }
+                            }
+                        },
+                        enabled = !busy,
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = AppColors.Green,
@@ -228,7 +259,7 @@ fun SignInScreen(
 fun SignInScreenPreview() {
     MobileAISemProjectTheme {
         SignInScreen(
-            onSignInClick = { _, _ -> },
+            onSignInClick = { _, _, _ -> },
             onSignUpClick = {}
         )
     }

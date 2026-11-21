@@ -70,15 +70,17 @@ fun ProfileScreen(
     modifier: Modifier = Modifier,
     onTabSelected: (Int) -> Unit = {},
     onLogoutClick: () -> Unit = {},
-    onSave: (phone: String, newPassword: String?, onDone: () -> Unit) -> Unit = { _, _, onDone -> onDone() },
+    onSave: (phone: String, newPassword: String?, onDone: (String?) -> Unit) -> Unit = { _, _, onDone -> onDone(null) },
 ) {
     var selectedTab by remember { mutableIntStateOf(1) }
     var editing by rememberSaveable { mutableStateOf(false) }
     var phoneDraft by rememberSaveable(inputs = arrayOf(profile.phone)) { mutableStateOf(profile.phone) }
     var passwordDraft by remember { mutableStateOf("") }
     var submitted by remember { mutableStateOf(false) }
+    var serverError by remember { mutableStateOf<String?>(null) }
 
     val phoneError = if (editing && submitted) Validate.phone(phoneDraft) else null
+    val displayPhoneError = phoneError ?: serverError
     val passwordError =
         if (editing && submitted && passwordDraft.isNotEmpty()) Validate.password(passwordDraft) else null
 
@@ -160,7 +162,7 @@ fun ProfileScreen(
                             placeholder = "Phone",
                             enabled = editing,
                             keyboardType = KeyboardType.Phone,
-                            error = phoneError,
+                            error = displayPhoneError,
                         )
                         Spacer(Modifier.height(16.dp))
                         // The real password is never stored (only a hash), so it can't be shown, only replaced.
@@ -192,16 +194,23 @@ fun ProfileScreen(
                                         val valid = (Validate.phone(phoneDraft) == null) &&
                                                 (passwordDraft.isEmpty() || Validate.password(passwordDraft) == null)
                                         if (valid) {
-                                            onSave(Validate.cleanPhone(phoneDraft), passwordDraft.ifEmpty { null }) {
-                                                editing = false
-                                                passwordDraft = ""
-                                                submitted = false
+                                            serverError = null
+                                            onSave(Validate.cleanPhone(phoneDraft), passwordDraft.ifEmpty { null }) { errorMsg ->
+                                                if (errorMsg != null) {
+                                                    serverError = errorMsg
+                                                } else {
+                                                    editing = false
+                                                    passwordDraft = ""
+                                                    submitted = false
+                                                    serverError = null
+                                                }
                                             }
                                         }
                                     } else {
                                         phoneDraft = profile.phone
                                         passwordDraft = ""
                                         submitted = false
+                                        serverError = null
                                         editing = true
                                     }
                                 },
@@ -238,6 +247,7 @@ fun ProfileScreen(
                                         submitted = false
                                         passwordDraft = ""
                                         phoneDraft = profile.phone
+                                        serverError = null
                                     } else {
                                         onLogoutClick()
                                     }
