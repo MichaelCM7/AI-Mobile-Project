@@ -12,7 +12,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
@@ -30,6 +29,7 @@ fun HomeScreen(
     records: List<DiseaseRecord>,
     onCameraClick: () -> Unit,
     onTabSelected: (Int) -> Unit,
+    onRecordClick: (DiseaseRecord) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
@@ -91,7 +91,10 @@ fun HomeScreen(
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     items(records, key = { it.id }) { record ->
-                        DiseaseRecordCard(record = record)
+                        DiseaseRecordCard(
+                            record = record,
+                            onClick = { onRecordClick(record) }
+                        )
                     }
                 }
             }
@@ -129,9 +132,11 @@ fun HomeScreen(
 @Composable
 fun DiseaseRecordCard(
     record: DiseaseRecord,
+    onClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Surface(
+        onClick = onClick,
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         color = Color.White,
@@ -231,7 +236,8 @@ fun HomePagePopulatedPreview() {
         HomeScreen(
             records = mockList,
             onCameraClick = {},
-            onTabSelected = {}
+            onTabSelected = {},
+            onRecordClick = {}
         )
     }
 }

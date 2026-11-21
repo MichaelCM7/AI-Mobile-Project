@@ -57,8 +57,7 @@ fun DiseaseIDScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 20.dp)
-                .verticalScroll(rememberScrollState()),
+                .padding(horizontal = 20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             // Disease Name, Confidence & Recorded Date Card
@@ -132,7 +131,7 @@ fun DiseaseIDScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(5.dp))
 
             // Remedy Section
             Text(
@@ -141,8 +140,6 @@ fun DiseaseIDScreen(
                 fontWeight = FontWeight.SemiBold,
                 color = Color.Black
             )
-
-            Spacer(modifier = Modifier.height(2.dp))
 
             Surface(
                 modifier = Modifier

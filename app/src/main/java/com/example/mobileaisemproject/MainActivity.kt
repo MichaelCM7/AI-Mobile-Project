@@ -21,7 +21,10 @@ import androidx.compose.ui.graphics.Color
 import com.example.mobileaisemproject.ml.DiseaseRecord
 import com.example.mobileaisemproject.ml.ScanResult
 import com.example.mobileaisemproject.screens.CameraScreen
+import com.example.mobileaisemproject.screens.DiseaseIDScreen
 import com.example.mobileaisemproject.screens.HomeScreen
+import com.example.mobileaisemproject.screens.Profile
+import com.example.mobileaisemproject.screens.ProfileScreen
 import com.example.mobileaisemproject.screens.ResultsScreen
 import com.example.mobileaisemproject.ui.theme.MobileAISemProjectTheme
 import java.text.SimpleDateFormat
@@ -30,7 +33,7 @@ import java.util.Locale
 import java.util.UUID
 
 private enum class AppScreen {
-    HOME, CAMERA, RESULTS
+    HOME, CAMERA, RESULTS, PROFILE, DISEASE_ID
 }
 
 class MainActivity : ComponentActivity() {
@@ -47,8 +50,8 @@ class MainActivity : ComponentActivity() {
                 var currentScreen by remember { mutableStateOf(AppScreen.HOME) }
                 val records = remember { mutableStateListOf<DiseaseRecord>() }
                 var latestScanResult by remember { mutableStateOf<ScanResult?>(null) }
+                var selectedRecord by remember { mutableStateOf<DiseaseRecord?>(null) }
 
-                // Handle Android system back button gracefully
                 BackHandler(enabled = currentScreen != AppScreen.HOME) {
                     currentScreen = AppScreen.HOME
                 }
@@ -60,7 +63,13 @@ class MainActivity : ComponentActivity() {
                             HomeScreen(
                                 records = records,
                                 onCameraClick = { currentScreen = AppScreen.CAMERA },
-                                onTabSelected = { /* Wire Profile tab here later */ }
+                                onTabSelected = { index ->
+                                    if (index == 1) currentScreen = AppScreen.PROFILE
+                                },
+                                onRecordClick = { record ->
+                                    selectedRecord = record
+                                    currentScreen = AppScreen.DISEASE_ID
+                                }
                             )
                         }
 
@@ -94,6 +103,34 @@ class MainActivity : ComponentActivity() {
                                 ResultsScreen(
                                     scanResult = result,
                                     onReturnHomeClick = { currentScreen = AppScreen.HOME }
+                                )
+                            }
+                        }
+
+                        AppScreen.PROFILE -> {
+                            ProfileScreen(
+                                profile = Profile(
+                                    identifiedCount = records.size
+                                ),
+                                onTabSelected = { index ->
+                                    if (index == 0) currentScreen = AppScreen.HOME
+                                }
+                            )
+                        }
+
+                        AppScreen.DISEASE_ID -> {
+                            selectedRecord?.let { record ->
+                                DiseaseIDScreen(
+                                    record = record,
+                                    onDeleteClick = {
+                                        records.removeIf { it.id == record.id }
+                                        selectedRecord = null
+                                        currentScreen = AppScreen.HOME
+                                    },
+                                    onReturnHomeClick = {
+                                        selectedRecord = null
+                                        currentScreen = AppScreen.HOME
+                                    }
                                 )
                             }
                         }
